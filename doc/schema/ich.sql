@@ -107,21 +107,42 @@ CREATE TABLE IF NOT EXISTS t_ich_project (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='名录项目底册';
 
-CREATE TABLE IF NOT EXISTS t_ich_report_row (
+CREATE TABLE IF NOT EXISTS t_ich_report_batch (
   id bigint NOT NULL COMMENT '主键',
-  batch_no varchar(64) DEFAULT NULL COMMENT '履职情况报送批号',
-  row_no int DEFAULT NULL COMMENT '原报行次',
-  item_code varchar(64) DEFAULT NULL COMMENT '被对上的传承人代号',
-  qty decimal(12,2) DEFAULT NULL COMMENT '本行进账场数',
-  hours_num decimal(12,2) DEFAULT NULL COMMENT '本行授徒时数',
-  status int DEFAULT NULL COMMENT '行落地情形 0未收 1已收下 2已退回',
+  batch_no varchar(64) NOT NULL COMMENT '报送批号（进门定死，一报一号；撤报后同一号可再进门另立一批）',
+  report_year int DEFAULT NULL COMMENT '报送年度（归档算满两个报送年度用）',
+  total_num int DEFAULT NULL COMMENT '回执·本批总行数',
+  accept_num int DEFAULT NULL COMMENT '回执·落库数（收下）',
+  reject_num int DEFAULT NULL COMMENT '回执·退件数（退回）；落库数+退件数须抵得上总行数',
+  receipt varchar(16) DEFAULT NULL COMMENT '回执字样 空报/核讫（核讫只给有数的报，一行没有落空报）',
+  status int DEFAULT '0' COMMENT '批情形 0现行落定 1已撤报',
   del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
   create_by varchar(64) DEFAULT NULL COMMENT '创建者',
   create_time datetime DEFAULT NULL COMMENT '创建时间',
   update_by varchar(64) DEFAULT NULL COMMENT '更新者',
   update_time datetime DEFAULT NULL COMMENT '更新时间',
   remark varchar(500) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY idx_batch_no (batch_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='履职情况报送批与回执';
+
+CREATE TABLE IF NOT EXISTS t_ich_report_row (
+  id bigint NOT NULL COMMENT '主键',
+  batch_no varchar(64) DEFAULT NULL COMMENT '履职情况报送批号',
+  row_no int DEFAULT NULL COMMENT '原报行次（进批按先后排定，退回行翻页直接带出）',
+  item_code varchar(64) DEFAULT NULL COMMENT '被对上的传承人代号',
+  qty decimal(12,2) DEFAULT NULL COMMENT '本行进账场数',
+  hours_num decimal(12,2) DEFAULT NULL COMMENT '本行授徒时数',
+  status int DEFAULT NULL COMMENT '行落地情形 0未收 1已收下 2已退回',
+  past_flag int DEFAULT '0' COMMENT '往期标记 0现行 1往期（满两个报送年度未决的退回行归档，现行批面不露）',
+  del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
+  create_by varchar(64) DEFAULT NULL COMMENT '创建者',
+  create_time datetime DEFAULT NULL COMMENT '创建时间',
+  update_by varchar(64) DEFAULT NULL COMMENT '更新者',
+  update_time datetime DEFAULT NULL COMMENT '更新时间',
+  remark varchar(500) DEFAULT NULL COMMENT '备注（退回行写退回缘由）',
+  PRIMARY KEY (id),
+  KEY idx_batch_no (batch_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='履职情况报送核收行';
 
 -- 初始底册数据：两条项目底册，一条在册、一条已注销（注销后不得再挂接新立卷）。

@@ -62,6 +62,11 @@ public class TIchReportRow implements Serializable {
     @ApiModelProperty(value = "行落地情形 0未收 1已收下 2已退回")
     private Integer status;
 
+    /** 往期标记 0现行 1往期（满两个报送年度未决的退回行归档，现行批面不露） */
+    @TableField("past_flag")
+    @ApiModelProperty(value = "往期标记 0现行 1往期")
+    private Integer pastFlag;
+
     /** 删除标记 0正常 1删除 */
     @TableField("del_flag")
     @ApiModelProperty(value = "删除标记 0正常 1删除")
@@ -148,6 +153,14 @@ public class TIchReportRow implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getPastFlag() {
+        return pastFlag;
+    }
+
+    public void setPastFlag(Integer pastFlag) {
+        this.pastFlag = pastFlag;
     }
 
     public Integer getDelFlag() {
